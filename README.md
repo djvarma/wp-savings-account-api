@@ -1,5 +1,7 @@
 # Savings Account API
 
+[![CI](https://github.com/djvarma/wp-savings-account-api/actions/workflows/ci.yml/badge.svg)](https://github.com/djvarma/wp-savings-account-api/actions/workflows/ci.yml)
+
 A small Spring Boot service for opening and fetching savings bank accounts.
 
 - Java 17, Spring Boot 4.1, Maven
@@ -104,6 +106,18 @@ Validation errors list every failing field:
 }
 ```
 
+### Health check
+
+| Endpoint                      | Reports                                                                 |
+|-------------------------------|-------------------------------------------------------------------------|
+| `/actuator/health`            | Overall status, plus the status of Postgres (`db`) and Redis (`redis`)  |
+| `/actuator/health/liveness`   | Whether the app is running                                              |
+| `/actuator/health/readiness`  | Whether it can serve traffic. Only depends on Postgres, since the API still works without Redis |
+
+```bash
+curl http://localhost:8080/actuator/health
+```
+
 ## Design notes and assumptions
 
 Some requirements were open to interpretation, so these are the calls I made:
@@ -158,6 +172,8 @@ The app does need the database to be up at startup (Flyway runs on boot).
 | `SavingsAccountApiIntegrationTest` | Full flow against Postgres + Redis, caching, concurrent account limit   |
 | `DatabaseOutageIntegrationTest`    | 503s and cached reads when Postgres goes down                           |
 
+The tests also run on every push and pull request with GitHub Actions (`.github/workflows/ci.yml`).
+
 ## What I'd add for production
 
 Some of these are also marked as `TODO`s in the code:
@@ -165,6 +181,7 @@ Some of these are also marked as `TODO`s in the code:
 - Authentication, and only letting customers read their own accounts
 - Using a real customer id instead of the name for the account limit
 - An `Idempotency-Key` header on `POST` so client retries don't open duplicate accounts
+- Retrying brief database blips: always safe for reads, but for account creation only once there's an idempotency key
 - Account numbers from the core banking system (branch/product prefixes)
 - A maintained offensive word list or moderation service, reloadable without a deploy
 - A circuit breaker around Redis so an outage doesn't cost a timeout on every request

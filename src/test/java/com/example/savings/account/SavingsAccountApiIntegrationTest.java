@@ -141,6 +141,18 @@ class SavingsAccountApiIntegrationTest {
 		assertThat(repository.countByCustomerName(customer)).isEqualTo(5);
 	}
 
+	@Test
+	void healthReportsDatabaseAndRedis() throws Exception {
+		mockMvc.perform(get("/actuator/health"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.status").value("UP"))
+				.andExpect(jsonPath("$.components.db.status").value("UP"))
+				.andExpect(jsonPath("$.components.redis.status").value("UP"));
+
+		mockMvc.perform(get("/actuator/health/readiness"))
+				.andExpect(status().isOk());
+	}
+
 	private ResultActions createAccount(String customerName, String nickname) throws Exception {
 		String json = nickname == null
 				? "{\"customerName\": \"%s\"}".formatted(customerName)

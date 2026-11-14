@@ -66,6 +66,10 @@ class DatabaseOutageIntegrationTest {
 		mockMvc.perform(get("/api/v1/accounts/{id}", id))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(id));
+
+		// tells a load balancer to stop sending traffic here
+		mockMvc.perform(get("/actuator/health/readiness"))
+				.andExpect(status().isServiceUnavailable());
 	}
 
 	private ResultActions createAccount() throws Exception {

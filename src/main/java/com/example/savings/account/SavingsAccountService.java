@@ -29,6 +29,9 @@ public class SavingsAccountService {
 		this.maxAccountsPerCustomer = maxAccountsPerCustomer;
 	}
 
+	// TODO: retry when the transaction couldn't start (safe, nothing reached the database). Retrying after
+	//  that could open a duplicate account if the commit actually went through, so it needs an
+	//  Idempotency-Key first.
 	@Transactional
 	public AccountResponse createAccount(CreateAccountRequest request) {
 		// There is no customer id in the requirements, so a customer is identified by their name
@@ -48,6 +51,8 @@ public class SavingsAccountService {
 		return AccountResponse.from(account);
 	}
 
+	// TODO: retry transient connection errors (e.g. a dead pooled connection after a database failover)
+	//  with a short backoff. Spring's @Retryable would do.
 	@Cacheable(cacheNames = ACCOUNTS_CACHE, key = "#id")
 	public AccountResponse getAccount(UUID id) {
 		return repository.findAccount(id)
