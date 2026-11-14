@@ -1,0 +1,36 @@
+# Words that are not allowed in an account nickname.
+# One word per line, case-insensitive. Lines starting with # are ignored.
+# TODO: replace with a maintained list (or a moderation service). This is just a starting point.
+arse
+arsehole
+ass
+asshole
+bastard
+bitch
+bollocks
+bullshit
+crap
+cunt
+damn
+dick
+dickhead
+dumbass
+fuck
+fucker
+idiot
+jackass
+loser
+moron
+motherfucker
+nazi
+piss
+prick
+pussy
+retard
+scum
+shit
+slut
+stupid
+twat
+wanker
+whore
